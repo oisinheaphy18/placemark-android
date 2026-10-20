@@ -3,23 +3,20 @@ package org.setu.placemark
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import org.setu.placemark.models.PlacemarkModel
+import timber.log.Timber
 
 class PlacemarkAdapter(
     private var marks: List<PlacemarkModel>,
-    private val onEdit: (PlacemarkModel) -> Unit,
-    private val onDelete: (PlacemarkModel) -> Unit
+    private val listener: OnMarkListener
 ) : RecyclerView.Adapter<PlacemarkAdapter.MarkViewHolder>() {
 
     class MarkViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val titleText: TextView = itemView.findViewById(R.id.titleText)
         val descriptionText: TextView = itemView.findViewById(R.id.descriptionText)
         val coordinatesText: TextView = itemView.findViewById(R.id.coordinatesText)
-        val editButton: Button = itemView.findViewById(R.id.editButton)
-        val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MarkViewHolder {
@@ -33,13 +30,22 @@ class PlacemarkAdapter(
         holder.titleText.text = "${mark.id}: ${mark.title}"
         holder.descriptionText.text = mark.description
         holder.coordinatesText.text = "X: ${mark.x}, Y: ${mark.y}"
-        holder.editButton.setOnClickListener { onEdit(mark) }
-        holder.deleteButton.setOnClickListener { onDelete(mark) }
+
+        holder.itemView.setOnClickListener {
+            Timber.d("Item clicked id=${mark.id}")
+            listener.onMarkClick(mark)
+        }
+
+        holder.itemView.setOnLongClickListener {
+            Timber.d("Item long-clicked id=${mark.id}")
+            listener.onMarkLongClick(mark)
+        }
     }
 
     override fun getItemCount(): Int = marks.size
 
     fun updateMarks(newMarks: List<PlacemarkModel>) {
+        Timber.d("Adapter updated with ${newMarks.size} marks")
         marks = newMarks.toList()
         notifyDataSetChanged()
     }

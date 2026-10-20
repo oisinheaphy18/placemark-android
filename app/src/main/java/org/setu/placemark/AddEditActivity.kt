@@ -7,6 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import org.setu.placemark.models.PlacemarkModel
+import timber.log.Timber
 
 class AddEditActivity : AppCompatActivity() {
 
@@ -27,6 +28,7 @@ class AddEditActivity : AppCompatActivity() {
         yInput = findViewById(R.id.yInput)
 
         editingId = intent.getLongExtra("id", -1L)
+        Timber.d("AddEditActivity created, editingId=$editingId")
 
         if (editingId != -1L) {
             findViewById<TextView>(R.id.formTitle).text = "Edit Placemark"
@@ -34,13 +36,17 @@ class AddEditActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.saveButton).setOnClickListener { saveMark() }
-        findViewById<Button>(R.id.cancelButton).setOnClickListener { finish() }
+        findViewById<Button>(R.id.cancelButton).setOnClickListener {
+            Timber.d("Add/edit cancelled")
+            finish()
+        }
     }
 
     private fun loadExistingMark(id: Long) {
         val mark = AppData.placemarks.findOne(id)
 
         if (mark == null) {
+            Timber.w("Placemark id=$id not found")
             Toast.makeText(this, "Placemark not found", Toast.LENGTH_SHORT).show()
             finish()
             return
