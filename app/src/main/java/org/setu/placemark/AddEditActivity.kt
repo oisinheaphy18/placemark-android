@@ -1,10 +1,9 @@
 package org.setu.placemark
 
 import android.os.Bundle
-import android.text.InputType
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import org.setu.placemark.models.PlacemarkModel
@@ -20,57 +19,22 @@ class AddEditActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_add_edit)
 
-        createUserInterface()
+        titleInput = findViewById(R.id.titleInput)
+        descriptionInput = findViewById(R.id.descriptionInput)
+        xInput = findViewById(R.id.xInput)
+        yInput = findViewById(R.id.yInput)
 
         editingId = intent.getLongExtra("id", -1L)
 
         if (editingId != -1L) {
+            findViewById<TextView>(R.id.formTitle).text = "Edit Placemark"
             loadExistingMark(editingId)
         }
-    }
 
-    private fun createUserInterface() {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(32, 320, 32, 32)
-        }
-
-        titleInput = EditText(this).apply { hint = "Title" }
-        descriptionInput = EditText(this).apply { hint = "Description" }
-
-        xInput = EditText(this).apply {
-            hint = "X coordinate"
-            inputType = InputType.TYPE_CLASS_NUMBER or
-                InputType.TYPE_NUMBER_FLAG_DECIMAL or
-                InputType.TYPE_NUMBER_FLAG_SIGNED
-        }
-
-        yInput = EditText(this).apply {
-            hint = "Y coordinate"
-            inputType = InputType.TYPE_CLASS_NUMBER or
-                InputType.TYPE_NUMBER_FLAG_DECIMAL or
-                InputType.TYPE_NUMBER_FLAG_SIGNED
-        }
-
-        val saveButton = Button(this).apply {
-            text = "Save"
-            setOnClickListener { saveMark() }
-        }
-
-        val cancelButton = Button(this).apply {
-            text = "Cancel"
-            setOnClickListener { finish() }
-        }
-
-        root.addView(titleInput)
-        root.addView(descriptionInput)
-        root.addView(xInput)
-        root.addView(yInput)
-        root.addView(saveButton)
-        root.addView(cancelButton)
-
-        setContentView(root)
+        findViewById<Button>(R.id.saveButton).setOnClickListener { saveMark() }
+        findViewById<Button>(R.id.cancelButton).setOnClickListener { finish() }
     }
 
     private fun loadExistingMark(id: Long) {
