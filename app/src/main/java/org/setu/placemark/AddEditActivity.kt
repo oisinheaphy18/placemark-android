@@ -1,5 +1,6 @@
 package org.setu.placemark
 
+import android.content.Intent
 import android.os.Bundle
 import android.net.Uri
 import android.widget.Button
@@ -22,6 +23,9 @@ class AddEditActivity : AppCompatActivity() {
     private lateinit var imagePreview: ImageView
     private var selectedImageUri: Uri? = null
 
+    private var selectedLatitude: Double? = null
+    private var selectedLongitude: Double? = null
+
     private var editingId: Long = -1L
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +45,7 @@ class AddEditActivity : AppCompatActivity() {
                     try {
                         contentResolver.takePersistableUriPermission(
                             uri,
-                            android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
                         )
                     } catch (_: SecurityException) {
                         // Some providers may not grant persistable access.
@@ -54,6 +58,45 @@ class AddEditActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.imagePickButton).setOnClickListener {
             imagePicker.launch(arrayOf("image/*"))
+        }
+
+        val mapPicker =
+            registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    val data = result.data ?: return@registerForActivityResult
+
+                    selectedLatitude = data.getDoubleExtra("latitude", 0.0)
+                    selectedLongitude = data.getDoubleExtra("longitude", 0.0)
+
+                    selectedLatitude?.let {
+                        xInput.setText(it.toString())
+                    }
+
+                    selectedLongitude?.let {
+                        yInput.setText(it.toString())
+                    }
+                }
+            }
+
+        findViewById<Button>(R.id.buttonLoc).setOnClickListener {
+            val intent = Intent(this, MapPickerActivity::class.java)
+
+            val latitude = xInput.text.toString().toDoubleOrNull()
+            val longitude = yInput.text.toString().toDoubleOrNull()
+
+            if (latitude != null && longitude != null &&
+                latitude in -90.0..90.0 &&
+                longitude in -180.0..180.0
+            ) {
+                intent.putExtra("latitude", latitude)
+                intent.putExtra("longitude", longitude)
+            }
+
+            intent.putExtra("title", titleInput.text.toString())
+
+            mapPicker.launch(intent)
         }
 
         editingId = intent.getLongExtra("id", -1L)
