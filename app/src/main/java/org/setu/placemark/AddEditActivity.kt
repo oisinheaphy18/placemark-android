@@ -88,41 +88,51 @@ class AddEditActivity : AppCompatActivity() {
         descriptionInput.setText(mark.description)
         xInput.setText(mark.x.toString())
         yInput.setText(mark.y.toString())
+
+        selectedImageUri = mark.imageUri?.let { Uri.parse(it) }
+
+        if (selectedImageUri != null) {
+            imagePreview.setImageURI(selectedImageUri)
+        } else {
+            imagePreview.setImageResource(
+                android.R.drawable.ic_menu_gallery
+            )
+        }
     }
 
     private fun saveMark() {
-        val title = titleInput.text.toString().trim()
-        val description = descriptionInput.text.toString().trim()
-
-        if (title.isEmpty()) {
-            titleInput.error = "Title is required"
-            return
-        }
-
-        val x = xInput.text.toString().toDoubleOrNull()
-        if (x == null) {
-            xInput.error = "Enter a valid number"
-            return
-        }
-
-        val y = yInput.text.toString().toDoubleOrNull()
-        if (y == null) {
-            yInput.error = "Enter a valid number"
-            return
-        }
-
-        if (editingId == -1L) {
-            AppData.placemarks.create(
-                PlacemarkModel(title = title, description = description, x = x, y = y)
+        try {
+            val mark = PlacemarkModel(
+                id = if (editingId == -1L) 0L else editingId,
+                title = titleInput.text.toString().trim(),
+                description = descriptionInput.text.toString().trim(),
+                x = xInput.text.toString().toDouble(),
+                y = yInput.text.toString().toDouble(),
+                imageUri = selectedImageUri?.toString()
             )
-            Toast.makeText(this, "Placemark created", Toast.LENGTH_SHORT).show()
-        } else {
-            AppData.placemarks.update(
-                PlacemarkModel(id = editingId, title = title, description = description, x = x, y = y)
-            )
-            Toast.makeText(this, "Placemark updated", Toast.LENGTH_SHORT).show()
-        }
 
-        finish()
+            mark.validate()
+
+            if (editingId == -1L) {
+                AppData.placemarks.create(mark)
+                Toast.makeText(this, "Placemark created", Toast.LENGTH_SHORT).show()
+            } else {
+                if (!AppData.placemarks.update(mark)) {
+                    Toast.makeText(this, "Placemark not found", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                Toast.makeText(this, "Placemark updated", Toast.LENGTH_SHORT).show()
+            }
+
+            finish()
+
+        } catch (e: IllegalArgumentException) {
+            Toast.makeText(
+                this,
+                e.message ?: "Please check the entered values.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 }

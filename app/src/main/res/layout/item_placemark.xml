@@ -6,6 +6,13 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/markImage"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Placemark image" />
+
     <TextView
         android:id="@+id/titleText"
         android:layout_width="match_parent"
@@ -24,4 +31,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp" />
+
 </LinearLayout>
