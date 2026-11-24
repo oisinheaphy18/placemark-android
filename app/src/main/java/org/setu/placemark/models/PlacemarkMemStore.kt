@@ -13,21 +13,27 @@ class PlacemarkMemStore {
     }
 
     fun create(placemark: PlacemarkModel) {
+        placemark.validate()
         placemark.id = lastId.incrementAndGet()
         placemarks.add(placemark)
         Timber.d("create: id=${placemark.id}, title=${placemark.title}")
     }
 
     fun update(placemark: PlacemarkModel): Boolean {
+        placemark.validate()
+
         val found = findOne(placemark.id)
         if (found == null) {
             Timber.w("update: id=${placemark.id} not found")
             return false
         }
+
         found.title = placemark.title
         found.description = placemark.description
         found.x = placemark.x
         found.y = placemark.y
+        found.imageUri = placemark.imageUri
+
         Timber.d("update: id=${found.id}, title=${found.title}")
         return true
     }
@@ -42,5 +48,6 @@ class PlacemarkMemStore {
         return placemarks.remove(found)
     }
 
-    fun findOne(id: Long): PlacemarkModel? = placemarks.find { it.id == id }
+    fun findOne(id: Long): PlacemarkModel? =
+        placemarks.find { it.id == id }
 }

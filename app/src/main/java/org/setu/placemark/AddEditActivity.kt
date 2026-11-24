@@ -1,10 +1,13 @@
 package org.setu.placemark
 
 import android.os.Bundle
+import android.net.Uri
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import org.setu.placemark.models.PlacemarkModel
 import timber.log.Timber
@@ -15,6 +18,9 @@ class AddEditActivity : AppCompatActivity() {
     private lateinit var descriptionInput: EditText
     private lateinit var xInput: EditText
     private lateinit var yInput: EditText
+
+    private lateinit var imagePreview: ImageView
+    private var selectedImageUri: Uri? = null
 
     private var editingId: Long = -1L
 
@@ -27,6 +33,29 @@ class AddEditActivity : AppCompatActivity() {
         xInput = findViewById(R.id.xInput)
         yInput = findViewById(R.id.yInput)
 
+        imagePreview = findViewById(R.id.imageViewAdd)
+
+        val imagePicker =
+            registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+                if (uri != null) {
+                    try {
+                        contentResolver.takePersistableUriPermission(
+                            uri,
+                            android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        )
+                    } catch (_: SecurityException) {
+                        // Some providers may not grant persistable access.
+                    }
+
+                    selectedImageUri = uri
+                    imagePreview.setImageURI(uri)
+                }
+            }
+
+        findViewById<Button>(R.id.imagePickButton).setOnClickListener {
+            imagePicker.launch(arrayOf("image/*"))
+        }
+
         editingId = intent.getLongExtra("id", -1L)
         Timber.d("AddEditActivity created, editingId=$editingId")
 
@@ -35,7 +64,10 @@ class AddEditActivity : AppCompatActivity() {
             loadExistingMark(editingId)
         }
 
-        findViewById<Button>(R.id.saveButton).setOnClickListener { saveMark() }
+        findViewById<Button>(R.id.saveButton).setOnClickListener {
+            saveMark()
+        }
+
         findViewById<Button>(R.id.cancelButton).setOnClickListener {
             Timber.d("Add/edit cancelled")
             finish()
