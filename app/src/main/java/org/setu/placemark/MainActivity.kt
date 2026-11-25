@@ -28,5 +28,10 @@ class MainActivity : AppCompatActivity() {
             Timber.d("Add placemark clicked")
             startActivity(Intent(this, AddEditActivity::class.java))
         }
+
+        findViewById<Button>(R.id.viewMapButton).setOnClickListener {
+            Timber.d("View map clicked")
+            startActivity(Intent(this, MapListActivity::class.java))
+        }
     }
 }
