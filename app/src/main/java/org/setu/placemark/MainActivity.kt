@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -15,6 +16,8 @@ class MainActivity : AppCompatActivity() {
             Timber.plant(Timber.DebugTree())
         }
         Timber.d("MainActivity created")
+
+        AppData.initialize(this)
 
         findViewById<Button>(R.id.viewMarksButton).setOnClickListener {
             Timber.d("View placemarks clicked")

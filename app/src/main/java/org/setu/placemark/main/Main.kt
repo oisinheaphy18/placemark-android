@@ -3,8 +3,9 @@ package org.setu.placemark.main
 
 import org.setu.placemark.models.PlacemarkMemStore
 import org.setu.placemark.models.PlacemarkModel
+import java.io.File
 
-val store = PlacemarkMemStore()
+val store = PlacemarkMemStore(File("console_placemarks.json"))
 
 fun main() {
     println("=== Placemark Console App (Lab 1) ===")
