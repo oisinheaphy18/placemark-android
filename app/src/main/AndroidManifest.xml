@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Placemark">
         <activity
+            android:name=".MapListActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -22,9 +25,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddEditActivity" android:exported="false" />
-        <activity android:name=".MarkListActivity" android:exported="false" />
-        <activity android:name=".MapPickerActivity" android:exported="false" />
+        <activity
+            android:name=".AddEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MarkListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MapPickerActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
