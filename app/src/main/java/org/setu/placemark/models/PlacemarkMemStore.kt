@@ -1,11 +1,42 @@
 package org.setu.placemark.models
 
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
+import java.io.File
 import java.util.concurrent.atomic.AtomicLong
 import timber.log.Timber
 
-class PlacemarkMemStore {
+class PlacemarkMemStore(private val file: File) {
+
     private val placemarks = ArrayList<PlacemarkModel>()
     private val lastId = AtomicLong(0L)
+
+    private val gson = GsonBuilder()
+        .setPrettyPrinting()
+        .create()
+
+    init {
+        load()
+    }
+
+    private fun load() {
+        if (!file.exists()) return
+
+        val type = object : TypeToken<ArrayList<PlacemarkModel>>() {}.type
+
+        val loaded: ArrayList<PlacemarkModel> =
+            gson.fromJson(file.readText(), type) ?: arrayListOf()
+
+        placemarks.clear()
+        placemarks.addAll(loaded)
+
+        lastId.set(placemarks.maxOfOrNull { it.id } ?: 0L)
+    }
+
+    private fun save() {
+        file.parentFile?.mkdirs()
+        file.writeText(gson.toJson(placemarks))
+    }
 
     fun findAll(): List<PlacemarkModel> {
         Timber.d("findAll: ${placemarks.size} placemarks")
@@ -16,6 +47,7 @@ class PlacemarkMemStore {
         placemark.validate()
         placemark.id = lastId.incrementAndGet()
         placemarks.add(placemark)
+        save()
         Timber.d("create: id=${placemark.id}, title=${placemark.title}")
     }
 
@@ -34,6 +66,8 @@ class PlacemarkMemStore {
         found.y = placemark.y
         found.imageUri = placemark.imageUri
 
+        save()
+
         Timber.d("update: id=${found.id}, title=${found.title}")
         return true
     }
@@ -44,8 +78,16 @@ class PlacemarkMemStore {
             Timber.w("delete: id=$id not found")
             return false
         }
+
         Timber.d("delete: id=$id")
-        return placemarks.remove(found)
+
+        val removed = placemarks.remove(found)
+
+        if (removed) {
+            save()
+        }
+
+        return removed
     }
 
     fun findOne(id: Long): PlacemarkModel? =
